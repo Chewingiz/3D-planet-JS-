@@ -1,6 +1,8 @@
 let cnv = document.querySelector("#myCanvas");
 let renderer = new THREE.WebGLRenderer({canvas: cnv, antialiasing: true});
 renderer.setSize(window.innerWidth, window.innerHeight);
+/*import { RectAreaLightHelper }  from "/autre/RectAreaLightHelper.js"
+import { RectAreaLightUniformsLib }  from "./autre/RectAreaLightUniformsLib.js"*/
 
 let scene = new THREE.Scene();
 let planet = new THREE.Scene();
@@ -37,10 +39,10 @@ camera.position.set(0, 0, 4);
 camera.lookAt(0, 0, 0);
 scene.add(camera);
 
-let geometry = new THREE.SphereGeometry(1.0, 20, 20);
+/*let geometry = new THREE.SphereGeometry(1.0, 20, 20);
 let texture = new THREE.TextureLoader().load("assets/grass.jpg");
 let material = new THREE.MeshBasicMaterial({ map: texture});
-let sphere = new THREE.Mesh(geometry, material);
+let sphere = new THREE.Mesh(geometry, material);*/
 //scene.add(sphere);
 
 /*Texture creation for "cartoon" style*/
@@ -70,16 +72,83 @@ torus_vehicule.rotation.x += -Math. PI/2;
 vehicule.add( sphere_center_vehicule);
 vehicule.add(torus_vehicule);
 
-scene.add(vehicule);
+//scene.add(vehicule);
 
 /*Planet creation*/
-let geometry_cube = new THREE.BoxGeometry( 0.5,2, 0.5  );
+let geometry = new THREE.SphereGeometry(1.0, 20, 20);
+let texture = new THREE.TextureLoader().load("assets/grass.jpg");
+let material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+let sphere = new THREE.Mesh(geometry, material);
+planet.add(sphere);
+// help https://tympanus.net/codrops/2021/08/31/surface-sampling-in-three-js/
+const sampler = new THREE.MeshSurfaceSampler(sphere).build();
+
+const sphereGeometry = new THREE.BoxGeometry( 0.1,1, 0.1  );;
+const sphereMaterial = new THREE.MeshToonMaterial({ color: 0xdcdcdc,gradientMap : threeTone });
+const spheres = new THREE.InstancedMesh(sphereGeometry, sphereMaterial, 300);
+planet.add(spheres);	
+
+const tempPosition = new THREE.Vector3();
+const tempObject = new THREE.Object3D();
+for (let i = 0; i < 300; i++) {
+  sampler.sample(tempPosition);
+  //tempObject.position.setFromSphericalCoords(tempPosition.x, tempPosition.y, tempPosition.z);
+  
+  tempObject.position.set(tempPosition.x, tempPosition.y, tempPosition.z);
+  
+  /*angles of the buildings*/
+  
+  
+  /*ajout test  y positif ou negatif*/
+  if (tempPosition.y>0){
+	  tempObject.rotation.x = Math.atan2(tempPosition.z,tempPosition.y)+ Math.PI ;
+	  //tempObject.rotation.y = Math.atan2(tempPosition.z,tempPosition.x) ;
+	  tempObject.rotation.z = Math.atan2(tempPosition.x,tempPosition.y) ;
+  }else {
+  	  tempObject.rotation.x = Math.atan2(tempPosition.z,tempPosition.y) ;
+	  //tempObject.rotation.y = Math.atan2(tempPosition.z,tempPosition.x) ;
+	  tempObject.rotation.z = Math.atan2(tempPosition.x,tempPosition.y) ;
+  }
+  
+
+  
+  /*
+  Bottom
+  tempObject.rotation.x = Math.atan2(tempPosition.z,tempPosition.y) ;
+  //tempObject.rotation.y = Math.atan2(tempPosition.z,tempPosition.x) ;
+  tempObject.rotation.z = Math.atan2(tempPosition.x,tempPosition.y) ;*/
+  
+  
+  /*tempObject.rotation.x = Math.atan2(tempPosition.z,tempPosition.y) ;
+  tempObject.rotation.y = Math.atan2(tempPosition.x,tempPosition.z) ;
+  tempObject.rotation.z = Math.atan2(tempPosition.x,tempPosition.y) * -tempPosition.x;*/
+  
+  tempObject.scale.setScalar(Math.random() * 0.5 + 0.5);
+  tempObject.updateMatrix();
+  spheres.setMatrixAt(i, tempObject.matrix);
+}	
+
+/*Windows*/
+/*
+const width = 10;
+const height = 10;
+const intensity = 1;
+const rectLight = new THREE.RectAreaLight( 0xffffff, intensity,  width, height );
+rectLight.position.set( 5, 5, 0 );
+rectLight.lookAt( 0, 0, 0 );
+scene.add( rectLight );
+
+const rectLightHelper = new RectAreaLightHelper( rectLight );
+rectLight.add( rectLightHelper );
+*/
+
+/*let geometry_cube = new THREE.BoxGeometry( 0.1,0.1, 0.1  );
 let material_cube  = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 let cube = new THREE.Mesh( geometry_cube , material_cube  )
 planet.add( cube );
-
-//scene.add( planet);
-cube.rotation.z += Math.atan2(0,0);//-Math. PI/4; 
+*/
+scene.add( planet);
+//cube.rotation.z += Math.atan2(0,0);//-Math. PI/4; 
 
 /*Math.atan2(x, y) return the angle the angle in the plane (in radians) between the positive x-axis and the ray from (0, 0) to the point (x, y) 
 
@@ -100,7 +169,7 @@ function update(timestamp) {
 	if(previousTimeStamp != undefined) { elapsed = timestamp-previousTimeStamp; }
 		if(elapsed > updateTime) {
 			previousTimeStamp = timestamp;
-			sphere.rotation.x += 0.01; sphere.rotation.z += 0.01;
+			planet.rotation.x += 0.01; sphere.rotation.z += 0.01;
 		}
 	renderer.render(scene, camera);
 	//planet.rotation.z +=0.01;

@@ -7,7 +7,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
 renderer.antialias= true;
 let scene = new THREE.Scene();
-let planet = new THREE.Scene();
+
 
 let stats = new Stats();
 document.body.appendChild(stats.dom);
@@ -35,7 +35,7 @@ spotLight.shadow.camera.near = 500;
 spotLight.shadow.camera.far = 4000;
 spotLight.shadow.camera.fov = 30;
 
-scene.add( spotLight );
+
 
 /*shadows*/
 spotLight.shadow.mapSize.width = 512; // default
@@ -58,7 +58,6 @@ let camera = new THREE.PerspectiveCamera(75,
 window.innerWidth/window.innerHeight, 1, 1000 );
 camera.position.set(0, 0, 70);
 camera.lookAt(0, 0, 0);
-scene.add(camera);
 
 
 /*Texture creation for "cartoon" style*/
@@ -72,7 +71,7 @@ fiveTone .magFilter = THREE.NearestFilter;
 
 /*Vehicule creation*/
 
-let vehicule = new THREE.Object3D();
+let vehicule = new THREE.Group();
 
 let geometry_center_vehicule = new THREE.SphereGeometry(1.0, 20, 20);
 let material_center_vehicule  = new THREE.MeshToonMaterial({ color: 0xdcdcdc,gradientMap : fiveTone  });
@@ -87,17 +86,17 @@ torus_vehicule.rotation.x += -Math. PI/2;
 
 vehicule.add( sphere_center_vehicule);
 vehicule.add(torus_vehicule);
-//vehicule.translateZ=70;
 
+vehicule.translateZ(65);
+vehicule.translateY(-1);
 
-//scene.add(vehicule);
 
 /*Planet creation*/
-
+let planet = new THREE.Group();
 let planet_size=30;
 let geometry = new THREE.SphereGeometry(planet_size, 100, 100);
 //let texture = new THREE.TextureLoader().load("assets/texture_toon.png");
-let material =new THREE.MeshToonMaterial({ color: 0xdcdcdc,gradientMap : fiveTone });
+let material =new THREE.MeshToonMaterial({ color: 0x606060,gradientMap : fiveTone });
 let sphere = new THREE.Mesh(geometry, material);
 sphere.castShadow = true;
 sphere.receiveShadow = true; 
@@ -167,8 +166,6 @@ planet.add( cube );
 */
 
 
-scene.add( planet);
-
 
 //cube.rotation.z += Math.atan2(0,0);//-Math. PI/4; 
 
@@ -180,12 +177,12 @@ I use it to get the angle for the buildings */
 // lien exemple planet : https://medium.com/@joshmarinacci/quaternions-are-spooky-3a228444956d
 
 
+
 /*sky texture*/
 let sky_box = new THREE.BoxGeometry(1000, 1000, 1000);
 let texture = new THREE.TextureLoader().load("assets/space.jpg");
 let material_sky  = new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide });
 let box_sky  = new THREE.Mesh(sky_box , material_sky  );
-scene.add(box_sky);
 
 /*Cel shading effect creation*/
 let effect = new THREE.OutlineEffect( renderer, {
@@ -194,11 +191,24 @@ let effect = new THREE.OutlineEffect( renderer, {
   	defaultAlpha: 0.8,
   	defaultKeepAlive: true // keeps outline material in cache even if material is removed from scene
   } );
- /* function render() {
- 
-  	effect.render( scene, camera );
- 
-  }*/
+
+
+/*adding to scene*/
+/*Env*/
+scene.add( spotLight );
+scene.add(camera);
+
+/*objects*/
+scene.add(vehicule);
+scene.add( planet);
+scene.add(box_sky);
+
+
+
+
+
+
+
 function onWindowResize() {
 	camera.aspect = window.innerWidth/window.innerHeight;
 	camera.updateProjectionMatrix();

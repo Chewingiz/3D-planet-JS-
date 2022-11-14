@@ -13,7 +13,7 @@ directionalLight.position.set( 0, 1, 0.5 );*/
 
 // white spotlight shining from the side, modulated by a texture, casting a shadow
 
-const spotLight = new THREE.SpotLight( 0xffffff );
+let  spotLight = new THREE.SpotLight( 0xffffff );
 spotLight.position.set( 2, 2, 0 );
 //spotLight.map = new THREE.TextureLoader().load( url );
 
@@ -28,7 +28,7 @@ spotLight.shadow.camera.fov = 30;
 
 scene.add( spotLight );
 
-const light = new THREE.AmbientLight( 0x404040 ); // soft white light
+let  light = new THREE.AmbientLight( 0x404040 ); // soft white light
 scene.add( light );
 
 //light.target.position.set( toX, toY, toZ );
@@ -39,18 +39,13 @@ camera.position.set(0, 0, 4);
 camera.lookAt(0, 0, 0);
 scene.add(camera);
 
-/*let geometry = new THREE.SphereGeometry(1.0, 20, 20);
-let texture = new THREE.TextureLoader().load("assets/grass.jpg");
-let material = new THREE.MeshBasicMaterial({ map: texture});
-let sphere = new THREE.Mesh(geometry, material);*/
-//scene.add(sphere);
 
 /*Texture creation for "cartoon" style*/
-const threeTone = new THREE.TextureLoader().load('assets/threeTone.jpg');
+let  threeTone = new THREE.TextureLoader().load('assets/threeTone.jpg');
 threeTone.minFilter = THREE.NearestFilter;
 threeTone.magFilter = THREE.NearestFilter;
 
-const fiveTone = new THREE.TextureLoader().load('assets/fiveTone.jpg');
+let  fiveTone = new THREE.TextureLoader().load('assets/fiveTone.jpg');
 fiveTone .minFilter = THREE.NearestFilter;
 fiveTone .magFilter = THREE.NearestFilter;
 
@@ -76,20 +71,21 @@ vehicule.add(torus_vehicule);
 
 /*Planet creation*/
 let geometry = new THREE.SphereGeometry(1.0, 20, 20);
-let texture = new THREE.TextureLoader().load("assets/grass.jpg");
+//let texture = new THREE.TextureLoader().load("assets/texture_toon.png");
 let material = new THREE.MeshStandardMaterial({ color: 0xffffff });
 let sphere = new THREE.Mesh(geometry, material);
 planet.add(sphere);
+
 // help https://tympanus.net/codrops/2021/08/31/surface-sampling-in-three-js/
-const sampler = new THREE.MeshSurfaceSampler(sphere).build();
+let  sampler = new THREE.MeshSurfaceSampler(sphere).build();
 
-const sphereGeometry = new THREE.BoxGeometry( 0.1,1, 0.1  );;
-const sphereMaterial = new THREE.MeshToonMaterial({ color: 0xdcdcdc,gradientMap : threeTone });
-const spheres = new THREE.InstancedMesh(sphereGeometry, sphereMaterial, 300);
-planet.add(spheres);	
+let  boxGeometry = new THREE.BoxGeometry( 0.1,1, 0.1  );;
+let  boxMaterial = new THREE.MeshToonMaterial({ color: 0xdcdcdc,gradientMap : threeTone });
+let  boxs = new THREE.InstancedMesh(boxGeometry, boxMaterial, 300);
+planet.add(boxs);	
 
-const tempPosition = new THREE.Vector3();
-const tempObject = new THREE.Object3D();
+let  tempPosition = new THREE.Vector3();
+let  tempObject = new THREE.Object3D();
 for (let i = 0; i < 300; i++) {
   sampler.sample(tempPosition);
   //tempObject.position.setFromSphericalCoords(tempPosition.x, tempPosition.y, tempPosition.z);
@@ -100,45 +96,32 @@ for (let i = 0; i < 300; i++) {
   
   
   /*ajout test  y positif ou negatif*/
-  if (tempPosition.y>0){
+  if (tempPosition.y>0){/*Top*/
 	  tempObject.rotation.x = Math.atan2(tempPosition.z,tempPosition.y)+ Math.PI ;
 	  //tempObject.rotation.y = Math.atan2(tempPosition.z,tempPosition.x) ;
 	  tempObject.rotation.z = Math.atan2(tempPosition.x,tempPosition.y) ;
-  }else {
+  }else { /*Bottom*/
   	  tempObject.rotation.x = Math.atan2(tempPosition.z,tempPosition.y) ;
 	  //tempObject.rotation.y = Math.atan2(tempPosition.z,tempPosition.x) ;
 	  tempObject.rotation.z = Math.atan2(tempPosition.x,tempPosition.y) ;
   }
   
-
-  
-  /*
-  Bottom
-  tempObject.rotation.x = Math.atan2(tempPosition.z,tempPosition.y) ;
-  //tempObject.rotation.y = Math.atan2(tempPosition.z,tempPosition.x) ;
-  tempObject.rotation.z = Math.atan2(tempPosition.x,tempPosition.y) ;*/
-  
-  
-  /*tempObject.rotation.x = Math.atan2(tempPosition.z,tempPosition.y) ;
-  tempObject.rotation.y = Math.atan2(tempPosition.x,tempPosition.z) ;
-  tempObject.rotation.z = Math.atan2(tempPosition.x,tempPosition.y) * -tempPosition.x;*/
-  
   tempObject.scale.setScalar(Math.random() * 0.5 + 0.5);
   tempObject.updateMatrix();
-  spheres.setMatrixAt(i, tempObject.matrix);
+  boxs.setMatrixAt(i, tempObject.matrix);
 }	
 
 /*Windows*/
 /*
-const width = 10;
-const height = 10;
-const intensity = 1;
-const rectLight = new THREE.RectAreaLight( 0xffffff, intensity,  width, height );
+let  width = 10;
+let  height = 10;
+let  intensity = 1;
+let  rectLight = new THREE.RectAreaLight( 0xffffff, intensity,  width, height );
 rectLight.position.set( 5, 5, 0 );
 rectLight.lookAt( 0, 0, 0 );
 scene.add( rectLight );
 
-const rectLightHelper = new RectAreaLightHelper( rectLight );
+let  rectLightHelper = new RectAreaLightHelper( rectLight );
 rectLight.add( rectLightHelper );
 */
 
@@ -147,7 +130,11 @@ let material_cube  = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 let cube = new THREE.Mesh( geometry_cube , material_cube  )
 planet.add( cube );
 */
+
+
 scene.add( planet);
+
+
 //cube.rotation.z += Math.atan2(0,0);//-Math. PI/4; 
 
 /*Math.atan2(x, y) return the angle the angle in the plane (in radians) between the positive x-axis and the ray from (0, 0) to the point (x, y) 
@@ -157,6 +144,26 @@ I use it to get the angle for the buildings */
 
 // lien exemple planet : https://medium.com/@joshmarinacci/quaternions-are-spooky-3a228444956d
 
+
+/*sky texture*/
+let sky_box = new THREE.BoxGeometry(20, 20, 20);
+let texture = new THREE.TextureLoader().load("assets/space.jpg");
+let material_sky  = new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide });
+let box_sky  = new THREE.Mesh(sky_box , material_sky  );
+scene.add(box_sky);
+
+/*Cel shading effect creation*/
+let effect = new THREE.OutlineEffect( renderer, {
+  	defaultThickness: 0.01,
+  	defaultColor: [ 0, 0, 0 ],
+  	defaultAlpha: 0.8,
+  	defaultKeepAlive: true // keeps outline material in cache even if material is removed from scene
+  } );
+ /* function render() {
+ 
+  	effect.render( scene, camera );
+ 
+  }*/
 function onWindowResize() {
 	camera.aspect = window.innerWidth/window.innerHeight;
 	camera.updateProjectionMatrix();
@@ -171,7 +178,8 @@ function update(timestamp) {
 			previousTimeStamp = timestamp;
 			planet.rotation.x += 0.01; sphere.rotation.z += 0.01;
 		}
-	renderer.render(scene, camera);
+	//renderer.render(scene, camera);
+	effect.render( scene, camera );
 	//planet.rotation.z +=0.01;
 	requestAnimationFrame(update);
 }

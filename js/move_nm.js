@@ -111,19 +111,19 @@ for (let i = 0; i < 300; i++) {
   boxs.setMatrixAt(i, tempObject.matrix);
 }	
 
-/*Windows*/
-/*
-let  width = 10;
-let  height = 10;
+/*Windows for buildings*/
+THREE.RectAreaLightUniformsLib.init();
+let  width = 0.5;
+let  height = 0.5;
 let  intensity = 1;
 let  rectLight = new THREE.RectAreaLight( 0xffffff, intensity,  width, height );
-rectLight.position.set( 5, 5, 0 );
+rectLight.position.set( 2, 2, 0 );
 rectLight.lookAt( 0, 0, 0 );
 scene.add( rectLight );
 
-let  rectLightHelper = new RectAreaLightHelper( rectLight );
+let  rectLightHelper = new THREE.RectAreaLightHelper( rectLight );
 rectLight.add( rectLightHelper );
-*/
+
 
 /*let geometry_cube = new THREE.BoxGeometry( 0.1,0.1, 0.1  );
 let material_cube  = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
@@ -146,7 +146,7 @@ I use it to get the angle for the buildings */
 
 
 /*sky texture*/
-let sky_box = new THREE.BoxGeometry(20, 20, 20);
+let sky_box = new THREE.BoxGeometry(100, 100, 100);
 let texture = new THREE.TextureLoader().load("assets/space.jpg");
 let material_sky  = new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide });
 let box_sky  = new THREE.Mesh(sky_box , material_sky  );
@@ -154,7 +154,7 @@ scene.add(box_sky);
 
 /*Cel shading effect creation*/
 let effect = new THREE.OutlineEffect( renderer, {
-  	defaultThickness: 0.01,
+  	defaultThickness: 0.02,
   	defaultColor: [ 0, 0, 0 ],
   	defaultAlpha: 0.8,
   	defaultKeepAlive: true // keeps outline material in cache even if material is removed from scene

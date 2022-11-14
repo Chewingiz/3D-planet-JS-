@@ -1,26 +1,35 @@
 let cnv = document.querySelector("#myCanvas");
 let renderer = new THREE.WebGLRenderer({canvas: cnv, antialiasing: true});
+/*size of the renderer*/
 renderer.setSize(window.innerWidth, window.innerHeight);
-/*import { RectAreaLightHelper }  from "/autre/RectAreaLightHelper.js"
-import { RectAreaLightUniformsLib }  from "./autre/RectAreaLightUniformsLib.js"*/
-
+/*handle shadows with the renderer*/
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
+renderer.antialias= true;
 let scene = new THREE.Scene();
 let planet = new THREE.Scene();
+
+let stats = new Stats();
+document.body.appendChild(stats.dom);
 
 /*let directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
 scene.add( directionalLight );
 directionalLight.position.set( 0, 1, 0.5 );*/
 
-// white spotlight shining from the side, modulated by a texture, casting a shadow
 
-let  spotLight = new THREE.SpotLight( 0xffffff );
-spotLight.position.set( 2, 2, 0 );
 //spotLight.map = new THREE.TextureLoader().load( url );
 
-spotLight.castShadow = true;
 
+/*light definition*/
+// white spotlight shining from the side, casting a shadow
+
+let  spotLight = new THREE.SpotLight( 0xffffff );
+spotLight.position.set( 100,100 , 100 );
+spotLight.castShadow = true;
 spotLight.shadow.mapSize.width = 1024;
 spotLight.shadow.mapSize.height = 1024;
+
+//spotLight.map = new THREE.TextureLoader().load( "assets/grass.jpg" );
 
 spotLight.shadow.camera.near = 500;
 spotLight.shadow.camera.far = 4000;
@@ -28,14 +37,26 @@ spotLight.shadow.camera.fov = 30;
 
 scene.add( spotLight );
 
-let  light = new THREE.AmbientLight( 0x404040 ); // soft white light
-scene.add( light );
+/*shadows*/
+spotLight.shadow.mapSize.width = 512; // default
+spotLight.shadow.mapSize.height = 512; // default
+spotLight.shadow.camera.near = 0.1; // default
+spotLight.shadow.camera.far = 500; // default
+spotLight.shadow.focus = 0.2; // default
+
+/*
+spotLight.shadow.mapSize.width = 512; // default
+spotLight.shadow.mapSize.height = 512; // default
+spotLight.shadow.camera.near = 0.5; // default
+spotLight.shadow.camera.far = 500; // default
+spotLight.shadow.focus = 1; // default
+*/
 
 //light.target.position.set( toX, toY, toZ );
 
 let camera = new THREE.PerspectiveCamera(75,
 window.innerWidth/window.innerHeight, 1, 1000 );
-camera.position.set(0, 0, 4);
+camera.position.set(0, 0, 70);
 camera.lookAt(0, 0, 0);
 scene.add(camera);
 
@@ -51,7 +72,7 @@ fiveTone .magFilter = THREE.NearestFilter;
 
 /*Vehicule creation*/
 
-let vehicule = new THREE.Scene();
+let vehicule = new THREE.Object3D();
 
 let geometry_center_vehicule = new THREE.SphereGeometry(1.0, 20, 20);
 let material_center_vehicule  = new THREE.MeshToonMaterial({ color: 0xdcdcdc,gradientMap : fiveTone  });
@@ -66,53 +87,67 @@ torus_vehicule.rotation.x += -Math. PI/2;
 
 vehicule.add( sphere_center_vehicule);
 vehicule.add(torus_vehicule);
+//vehicule.translateZ=70;
+
 
 //scene.add(vehicule);
 
 /*Planet creation*/
-let geometry = new THREE.SphereGeometry(1.0, 20, 20);
+
+let planet_size=30;
+let geometry = new THREE.SphereGeometry(planet_size, 100, 100);
 //let texture = new THREE.TextureLoader().load("assets/texture_toon.png");
-let material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+let material =new THREE.MeshToonMaterial({ color: 0xdcdcdc,gradientMap : fiveTone });
 let sphere = new THREE.Mesh(geometry, material);
+sphere.castShadow = true;
+sphere.receiveShadow = true; 
 planet.add(sphere);
 
 // help https://tympanus.net/codrops/2021/08/31/surface-sampling-in-three-js/
+let number_buildings =500;
 let  sampler = new THREE.MeshSurfaceSampler(sphere).build();
 
-let  boxGeometry = new THREE.BoxGeometry( 0.1,1, 0.1  );;
+let  boxGeometry = new THREE.BoxGeometry( 3, 10, 3 );
 let  boxMaterial = new THREE.MeshToonMaterial({ color: 0xdcdcdc,gradientMap : threeTone });
-let  boxs = new THREE.InstancedMesh(boxGeometry, boxMaterial, 300);
+let  boxs = new THREE.InstancedMesh(boxGeometry, boxMaterial, number_buildings);
+
+boxs.castShadow = true;
+boxs.receiveShadow = true; 
 planet.add(boxs);	
 
 let  tempPosition = new THREE.Vector3();
 let  tempObject = new THREE.Object3D();
-for (let i = 0; i < 300; i++) {
+for (let i = 0; i < number_buildings; i++) {
   sampler.sample(tempPosition);
   //tempObject.position.setFromSphericalCoords(tempPosition.x, tempPosition.y, tempPosition.z);
   
   tempObject.position.set(tempPosition.x, tempPosition.y, tempPosition.z);
   
   /*angles of the buildings*/
-  
-  
-  /*ajout test  y positif ou negatif*/
   if (tempPosition.y>0){/*Top*/
 	  tempObject.rotation.x = Math.atan2(tempPosition.z,tempPosition.y)+ Math.PI ;
-	  //tempObject.rotation.y = Math.atan2(tempPosition.z,tempPosition.x) ;
-	  tempObject.rotation.z = Math.atan2(tempPosition.x,tempPosition.y) ;
   }else { /*Bottom*/
   	  tempObject.rotation.x = Math.atan2(tempPosition.z,tempPosition.y) ;
-	  //tempObject.rotation.y = Math.atan2(tempPosition.z,tempPosition.x) ;
-	  tempObject.rotation.z = Math.atan2(tempPosition.x,tempPosition.y) ;
   }
   
+ let pl = (planet_size/2)/5;
+ if (tempPosition.x>7*pl){/*Left*/
+	  tempObject.rotation.z = Math.atan2(tempPosition.x,tempPosition.y) + Math.PI ;
+  }else if(tempPosition.x<-pl*7){ /*Right*/
+	  tempObject.rotation.z = Math.atan2(tempPosition.x,tempPosition.y) ;
+  }else{ /*Center*/
+  	tempObject.rotation.z =0 ;
+  }
+
   tempObject.scale.setScalar(Math.random() * 0.5 + 0.5);
   tempObject.updateMatrix();
   boxs.setMatrixAt(i, tempObject.matrix);
 }	
 
+
+
 /*Windows for buildings*/
-THREE.RectAreaLightUniformsLib.init();
+/*THREE.RectAreaLightUniformsLib.init();
 let  width = 0.5;
 let  height = 0.5;
 let  intensity = 1;
@@ -123,7 +158,7 @@ scene.add( rectLight );
 
 let  rectLightHelper = new THREE.RectAreaLightHelper( rectLight );
 rectLight.add( rectLightHelper );
-
+*/
 
 /*let geometry_cube = new THREE.BoxGeometry( 0.1,0.1, 0.1  );
 let material_cube  = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
@@ -146,7 +181,7 @@ I use it to get the angle for the buildings */
 
 
 /*sky texture*/
-let sky_box = new THREE.BoxGeometry(100, 100, 100);
+let sky_box = new THREE.BoxGeometry(1000, 1000, 1000);
 let texture = new THREE.TextureLoader().load("assets/space.jpg");
 let material_sky  = new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide });
 let box_sky  = new THREE.Mesh(sky_box , material_sky  );
@@ -177,11 +212,13 @@ function update(timestamp) {
 		if(elapsed > updateTime) {
 			previousTimeStamp = timestamp;
 			planet.rotation.x += 0.01; sphere.rotation.z += 0.01;
+			//test.rotation.x += 0.01;
 		}
 	//renderer.render(scene, camera);
 	effect.render( scene, camera );
 	//planet.rotation.z +=0.01;
 	requestAnimationFrame(update);
+	stats.update();
 }
 window.addEventListener("resize", onWindowResize, false);
 requestAnimationFrame(update);

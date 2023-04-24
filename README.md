@@ -21,9 +21,9 @@ Une fois le serveur lancé, vous pouvez accéder à la page web en ouvrant votre
 
 http://localhost:8000
 ```
-Cela va ouvrir une page web dans le navigateur, et le JavaScript contenu dans les fichiers sera exécuté.
+Cela va ouvrir une page web dans le navigateur, lancez "base.html", et le JavaScript contenu dans les fichiers sera exécuté.
 ## Images
-
+![Image planète](image.gif)
 ## Bibliothèques utilisées
 
     Three.js : une bibliothèque JavaScript pour créer des animations et des rendus en 3D dans le navigateur

@@ -18,12 +18,10 @@ python -m http.server 8080
 Une fois le serveur lancé, vous pouvez accéder à la page web en ouvrant votre navigateur et en saisissant l'adresse suivante dans la barre d'adresse :
 
 ```
-
 http://localhost:8000
 ```
 Cela va ouvrir une page web dans le navigateur, lancez "base.html", et le JavaScript contenu dans les fichiers sera exécuté.
 ## Images
 ![Image planète](image.gif)
 ## Bibliothèques utilisées
-
-    Three.js : une bibliothèque JavaScript pour créer des animations et des rendus en 3D dans le navigateur
+[Three.js](https://threejs.org/) : une bibliothèque JavaScript pour créer des animations et des rendus en 3D dans le navigateur
